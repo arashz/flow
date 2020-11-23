@@ -165,20 +165,27 @@ const initialElements = [
 ];
 let steps = [];
 let currentStep = -1;
-initialElements.map(x => {
-  if (!x.source) {
-    steps.push(x.id);
-  }
-});
 
-console.log('WOW steps', steps);
+
 
 const MindNode = () => {
   const [elements, setElements] = useState(initialElements);
   const [name, setName] = useState('');
 
+  const setKeys = () =>{
+    steps = []
+    console.log('WAIT what is elements',elements)
+    elements.map(x => {
+      if (!x.source) {
+        steps.push(x.id);
+      }
+    });
+    console.log('OK what is steps now',steps)
+  }
+
   useEffect(() => {
     console.log('USE EFFECT CALLED');
+    setKeys()
     // Update the document title using the browser API
     //document.title = `You clicked ${count} times`;
   }, []);
@@ -218,16 +225,26 @@ const MindNode = () => {
   };
 
   const addNode = () => {
-    setElements(e =>
-      e.concat({
-        id: (e.length + 1).toString(),
-        data: { label: `${name}` },
-        position: {
-          x: Math.random() * window.innerWidth,
-          y: Math.random() * window.innerHeight,
-        },
-      }),
+    setElements(e => {
+          let e2 = e.concat({
+            id: (e.length + 1).toString(),
+            data: {label: `${name}`},
+            position: {
+              x: Math.random() * window.innerWidth,
+              y: Math.random() * window.innerHeight,
+            },
+            style: {
+              background: '#D6D5E6',
+              color: '#333',
+              border: '1px solid #222138',
+              width: 180,
+            }
+          })
+      return e2
+        }
     );
+    console.log('BEFORE elements',elements)
+    setKeys()
   };
 
   const onElementClick = (event, element) => {
@@ -239,21 +256,31 @@ const MindNode = () => {
     timer = setInterval(() => {
       currentStep++;
 
-      console.log('WHAT IS currentStep', currentStep);
-      console.log('vs steps[steps.length-1]', steps[steps.length - 1]);
 
-      if (currentStep < steps[steps.length - 1]) {
-        console.log('YUP');
+      if (currentStep <= steps.length ) {
+        //console.log('WHAT IS currentStep', currentStep);
+
+        //console.log('vs steps.length', steps.length);
+        //console.log('vs steps[steps.length-1]', steps[steps.length-1]);
+        //console.log('for steps', steps);
+
+
         let newElements = elements.map(element => {
-          console.log('_______');
-          console.log('compare element.id ', element.id);
-          console.log('to steps[currentStep]', steps[currentStep]);
           if (element && element.style && element.style.background) {
-            if (element.id === steps[currentStep]) {
-              element.style.background =
-                '#' + Math.floor(Math.random() * 16777215).toString(16);
-            } else {
-              element.style.background = '#eee';
+            console.log('~~')
+            console.log('currentStep:'+currentStep)
+            console.log('steps[currentStep]:'+steps[currentStep])
+            if (steps[currentStep]) {
+              if (element.id === steps[currentStep]) {
+                console.log('_____')
+                console.log('COMPARING element.id:'+element.id+' vs steps['+currentStep+']:'+steps[currentStep])
+
+
+                element.style.background =
+                    '#' + Math.floor(Math.random() * 16777215).toString(16);
+              } else {
+                element.style.background = '#eee';
+              }
             }
           }
           return element;
@@ -264,15 +291,6 @@ const MindNode = () => {
       }
     }, 1000);
 
-    /*onChange(
-      elements.map(element => {
-        if (element && element.style && element.style.background) {
-          element.style.background =
-            '#' + Math.floor(Math.random() * 16777215).toString(16);
-        }
-        return element;
-      }),
-    );*/
   };
 
   const notNice = () => {
