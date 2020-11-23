@@ -18,6 +18,8 @@ import ReactFlow, {
   },
 ];*/
 
+let timer;
+
 const initialElements = [
   {
     id: '1',
@@ -161,12 +163,28 @@ const initialElements = [
     labelStyle: { fill: '#f6ab6c', fontWeight: 700 },
   },
 ];
+let steps = [];
+let currentStep = -1;
+initialElements.map(x => {
+  if (!x.source) {
+    steps.push(x.id);
+  }
+});
+
+console.log('WOW steps', steps);
 
 const MindNode = () => {
   const [elements, setElements] = useState(initialElements);
   const [name, setName] = useState('');
 
+  useEffect(() => {
+    console.log('USE EFFECT CALLED');
+    // Update the document title using the browser API
+    //document.title = `You clicked ${count} times`;
+  }, []);
+
   const onChange = elements => {
+    console.log('WEE elements', elements);
     setElements(elements);
     console.log('onChange', elements);
   };
@@ -199,12 +217,6 @@ const MindNode = () => {
     );
   };
 
-  useEffect(() => {
-    console.log('USE EFFECT CALLED');
-    // Update the document title using the browser API
-    //document.title = `You clicked ${count} times`;
-  }, []);
-
   const addNode = () => {
     setElements(e =>
       e.concat({
@@ -223,28 +235,36 @@ const MindNode = () => {
   };
 
   const nice = () => {
-    //let elements2 = elements;
-    /*elements.map(x => {
-      if (x && x.style && x.style.background) {
-        x.style.background =
-          '#' + Math.floor(Math.random() * 16777215).toString(16);
-      }
-      return x;
-    });*/
-    //console.log('NEW elements2', elements2);
+    currentStep = -1
+    timer = setInterval(() => {
+      currentStep++;
 
-    const timer = setInterval(() => {
-      onChange(
-        elements.map(element => {
+      console.log('WHAT IS currentStep', currentStep);
+      console.log('vs steps[steps.length-1]', steps[steps.length - 1]);
+
+      if (currentStep < steps[steps.length - 1]) {
+        console.log('YUP');
+        let newElements = elements.map(element => {
+          console.log('_______');
+          console.log('compare element.id ', element.id);
+          console.log('to steps[currentStep]', steps[currentStep]);
           if (element && element.style && element.style.background) {
-            element.style.background =
-              '#' + Math.floor(Math.random() * 16777215).toString(16);
+            if (element.id === steps[currentStep]) {
+              element.style.background =
+                '#' + Math.floor(Math.random() * 16777215).toString(16);
+            } else {
+              element.style.background = '#eee';
+            }
           }
           return element;
-        }),
-      );
+        });
+        onChange(newElements);
+      } else {
+        clearInterval(timer);
+      }
     }, 1000);
-    onChange(
+
+    /*onChange(
       elements.map(element => {
         if (element && element.style && element.style.background) {
           element.style.background =
@@ -252,9 +272,12 @@ const MindNode = () => {
         }
         return element;
       }),
-    );
+    );*/
   };
 
+  const notNice = () => {
+    clearInterval(timer);
+  };
   return (
     <Fragment>
       <ReactFlowProvider>
@@ -302,6 +325,10 @@ const MindNode = () => {
           <br />
           <button type="button" onClick={nice}>
             Press to change background color every second
+          </button>
+
+          <button type="button" onClick={notNice}>
+            Stop
           </button>
         </div>
       </ReactFlowProvider>
